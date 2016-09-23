@@ -34,7 +34,6 @@ public class FilePickerFragment extends GuidedStepFragment {
 
     @SuppressLint("ValidFragment")
     private FilePickerFragment() {
-
     }
 
     /**
@@ -71,14 +70,16 @@ public class FilePickerFragment extends GuidedStepFragment {
                     .title("../") // Go up one step
                     .build());
         }
-        for (int i = 0; i < mFiles.getFiles().length; i++) {
-            AbstractFile file = mFiles.getFiles()[i];
-            if (file.isDirectory() && mFilterInterface.matches(file)) {
-                actions.add(new GuidedAction.Builder(mActivity)
-                        .icon(mActivity.getDrawable(R.drawable.ic_folder_white_24dp))
-                        .id(i)
-                        .title(file.getTitle())
-                        .build());
+        if (mFiles.getFiles() != null) {
+            for (int i = 0; i < mFiles.getFiles().length; i++) {
+                AbstractFile file = mFiles.getFiles()[i];
+                if (file.isDirectory() && mFilterInterface.matches(file)) {
+                    actions.add(new GuidedAction.Builder(mActivity)
+                            .icon(mActivity.getDrawable(R.drawable.ic_folder_white_24dp))
+                            .id(i)
+                            .title(file.getTitle())
+                            .build());
+                }
             }
         }
     }
@@ -87,7 +88,7 @@ public class FilePickerFragment extends GuidedStepFragment {
     public void onGuidedActionClicked(GuidedAction action) {
         if (action.getId() == -1) {
             // Selected the up directory
-            explore(mFiles.getParent());
+            explore(AbstractFile.fromLocalAbstractFile(mFiles.getParent()));
             return;
         }
         AbstractFile selectedFile = mFiles.getFiles()[(int) action.getId()];
@@ -111,13 +112,15 @@ public class FilePickerFragment extends GuidedStepFragment {
     @Override
     public void onCreateButtonActions(@NonNull List<GuidedAction> actions,
             Bundle savedInstanceState) {
-        for (int i = 0; i < mFiles.getFiles().length; i++) {
-            AbstractFile file = mFiles.getFiles()[i];
-            if (!file.isDirectory() && mFilterInterface.matches(file)) {
-                actions.add(new GuidedAction.Builder(mActivity)
-                        .id(i)
-                        .title(file.getTitle())
-                        .build());
+        if (mFiles.getFiles() != null) {
+            for (int i = 0; i < mFiles.getFiles().length; i++) {
+                AbstractFile file = mFiles.getFiles()[i];
+                if (!file.isDirectory() && mFilterInterface.matches(file)) {
+                    actions.add(new GuidedAction.Builder(mActivity)
+                            .id(i)
+                            .title(file.getTitle())
+                            .build());
+                }
             }
         }
     }
@@ -125,6 +128,11 @@ public class FilePickerFragment extends GuidedStepFragment {
     @Override
     public int onProvideTheme() {
         return R.style.Theme_Leanback_GuidedStep;
+    }
+
+    @Override
+    public void setUiStyle(int style) {
+        super.setUiStyle(UI_STYLE_ACTIVITY_ROOT);
     }
 
     @NonNull

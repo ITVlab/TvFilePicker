@@ -16,11 +16,11 @@ import java.util.List;
  * structures where a {@link File} may not exist or be accessible.</p>
  */
 public class AbstractFile {
-    private boolean mIsDirectory;
-    private String mTitle;
-    private Uri mUri;
-    private AbstractFile parent;
-    private AbstractFile[] mDirectoryFiles;
+    protected boolean mIsDirectory;
+    protected String mTitle;
+    protected Uri mUri;
+    protected AbstractFile parent;
+    protected AbstractFile[] mDirectoryFiles;
 
     protected AbstractFile() {
     }
@@ -97,10 +97,12 @@ public class AbstractFile {
     public static AbstractFile fromLocalPath(File filePath) {
         List<AbstractFile> abstractFileList = new ArrayList<>();
         AbstractFile abstractFile = fromFile(filePath);
-        for (File file : filePath.listFiles()) {
-            AbstractFile childFile = fromFile(file);
-            childFile.parent = abstractFile;
-            abstractFileList.add(childFile);
+        if (filePath.listFiles() != null) {
+            for (File file : filePath.listFiles()) {
+                AbstractFile childFile = fromFile(file);
+                childFile.parent = abstractFile;
+                abstractFileList.add(childFile);
+            }
         }
         abstractFile.mDirectoryFiles =
                 abstractFileList.toArray(new AbstractFile[abstractFileList.size()]);
@@ -129,6 +131,11 @@ public class AbstractFile {
      * @return A list of AbstractFiles representing the contents of this folder.
      */
     public static AbstractFile fromLocalAbstractFile(AbstractFile directory) {
-        return fromLocalPath(new File(String.valueOf(directory.getUri())));
+        File directoryFile = new File(String.valueOf(directory.getUri()));
+        AbstractFile abstractDirectory = fromLocalPath(directoryFile);
+        if (directoryFile.getParentFile() != null) {
+            abstractDirectory.parent = fromFile(directoryFile.getParentFile());
+        }
+        return abstractDirectory;
     }
 }
